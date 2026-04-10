@@ -19,6 +19,10 @@ Inside `PGDATA`, you will find:
 - configuration files
 - WAL and other internal directories
 
+![PGDATA folder layout overview](../images/schema.png)
+
+_Figure: High-level layout of `PGDATA` and default database folders._
+
 ## OID basics
 An OID (Object Identifier) is a unique numeric identifier assigned to PostgreSQL objects such as databases, tables, and indexes.
 
@@ -30,7 +34,15 @@ Example query to list database names and OIDs:
 SELECT datname, oid FROM pg_database;
 ```
 
+![OID lookup query example](../images/image0.png)
+
+_Figure: Example query to inspect database OIDs._
+
 ## Important files and directories in `PGDATA`
+
+![PGDATA items reference table](../images/image.png)
+
+_Figure: Quick reference of common files/directories found in `PGDATA`._
 
 ### `PG_VERSION`
 Contains the major PostgreSQL version for the whole cluster.

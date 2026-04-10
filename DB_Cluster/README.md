@@ -20,4 +20,8 @@ exemples des fichiers importants qu'on peut trouver en PGDATA :
 **PG_VERSION** Le fichier PG_VERSION définit la version de tout le cluster. Toutes les bases de données (instances) situées sous le dossier base/ doivent impérativement respecter cette version.
 Le fichier current_logfiles est un fichier temporaire généré par PostgreSQL uniquement lorsque le collecteur de journaux (logging collector) est activé.
 
-**current_logfiles** Il sert de pointeur en temps réel. Il indique quel fichier de log est actuellement utilisé par le serveur pour écrire les erreurs, les requêtes lentes ou les logs de connexion.
+**current_logfiles** Il sert de pointeur en temps réel. Il indique quel fichier de log est actuellement utilisé par le serveur pour écrire les erreurs, les requêtes lentes ou les logs de connexion, missing in docker because the logs are routed to docker deamon to visualize the logs with docker logs , 
+
+**global** shared space that contains global cluster-wide tables like pg_database and files like pg_control that stores a sequence number that represents where WAL has stopped
+**pg_commit_ts** a Subdirectory that stores transactions IDS along with their respective timestamps, disabled by default in postgres.conf as it consumes CPU and memory to write on disk 
+**PG_VERSION** A file containing the major version number of PostgreSQL

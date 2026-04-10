@@ -1,27 +1,55 @@
-Database cluster is basically a group of databases managed by the server postgres
-a command initdb is used to create a cluster , if ur using docker containers then u might add initdb to be executed automatically when running the postgres container as the entrypoint , 3 databases are created by default template1 , template2 and postgres
+# PostgreSQL Database Cluster Notes
 
-PG_DATA is the env variable that stores the path to the cluster data directory
+## What is a cluster?
+A PostgreSQL cluster is a single PostgreSQL server instance that manages multiple databases.
 
-under this directory there is : 
+The cluster is initialized with `initdb`.
 
-a directory BASE which contains subdirectories representing each a database 
-some config files
-other directories like :
-global which contains  tables that store metadata about the cluster like pg_database
-the folders names are the oids of the databases/tables/indexes 
+When a new cluster is created, PostgreSQL includes these default databases:
+- `postgres`
+- `template1`
+- `template2`
 
-what is an oid? :
-it's a number assigned uniquely to a database object (table,database,indexe ect)
-to search oids we use the sql command 
-SELECT datname,oid from pg_database 
+## Cluster data location
+`PGDATA` is the environment variable that points to the cluster data directory.
 
-exemples des fichiers importants qu'on peut trouver en PGDATA :
-**PG_VERSION** Le fichier PG_VERSION définit la version de tout le cluster. Toutes les bases de données (instances) situées sous le dossier base/ doivent impérativement respecter cette version.
-Le fichier current_logfiles est un fichier temporaire généré par PostgreSQL uniquement lorsque le collecteur de journaux (logging collector) est activé.
+Inside `PGDATA`, you will find:
+- `base/`: database-specific files (one subdirectory per database, named by OID)
+- `global/`: cluster-wide system catalog files (for example metadata such as `pg_database`)
+- configuration files
+- WAL and other internal directories
 
-**current_logfiles** Il sert de pointeur en temps réel. Il indique quel fichier de log est actuellement utilisé par le serveur pour écrire les erreurs, les requêtes lentes ou les logs de connexion, missing in docker because the logs are routed to docker deamon to visualize the logs with docker logs , 
+## OID basics
+An OID (Object Identifier) is a unique numeric identifier assigned to PostgreSQL objects such as databases, tables, and indexes.
 
-**global** shared space that contains global cluster-wide tables like pg_database and files like pg_control that stores a sequence number that represents where WAL has stopped
-**pg_commit_ts** a Subdirectory that stores transactions IDS along with their respective timestamps, disabled by default in postgres.conf as it consumes CPU and memory to write on disk 
-**PG_VERSION** A file containing the major version number of PostgreSQL
+Many on-disk folder/file names in `PGDATA` use OIDs.
+
+Example query to list database names and OIDs:
+
+```sql
+SELECT datname, oid FROM pg_database;
+```
+
+## Important files and directories in `PGDATA`
+
+### `PG_VERSION`
+Contains the major PostgreSQL version for the whole cluster.
+
+All databases stored under `base/` must match this cluster version.
+
+### `current_logfiles`
+A temporary file generated when the PostgreSQL logging collector is enabled.
+
+It points to the currently active log file(s) used for errors, connections, and slow query logs.
+
+In many Docker setups, this file may be absent or less relevant because logs are routed to the container runtime and viewed with commands like `docker logs`.
+
+### `global/`
+Shared cluster-wide area containing global catalog data and control information.
+
+This includes data related to global system tables (such as `pg_database`) and control state (for example in `pg_control`, used for cluster/WAL state tracking).
+
+### `pg_commit_ts/`
+Stores transaction IDs with their commit timestamps when `track_commit_timestamp` is enabled.
+
+It is disabled by default because enabling it adds CPU, memory, and disk overhead.
